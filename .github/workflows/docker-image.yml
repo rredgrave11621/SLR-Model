@@ -15,4 +15,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag slr-model:$(date +%s)
+      run: docker build . --tag research-repo:$(date +%s) --file Dockerfile --no-cache
+ 
+  pubish_image:
+  
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Log in to Docker Hub
+      run: docker login -u rredgrave11621 -p ${{ secrets.DOCKER_HUB_TOKEN }}
+    - name: Tag the Docker image
+      run: docker tag research-repo:$(date +%s) rredgrave11621/research-repo:$(date +%s)
+    - name: Push the Docker image
+      run: docker push rredgrave11621/research-repo:$(date +%s)
