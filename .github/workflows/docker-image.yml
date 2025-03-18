@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: docker build . --tag research-repo:$(date +%s) --file Dockerfile --no-cach
+      run: docker build . --tag research-repo:$(date +%s) --file Dockerfile --no-cache
     - name: Log in to Docker Hub
       run: docker login -u rredgrave11621 -p ${{ secrets.DOCKER_HUB_TOKEN }}
     - name: Tag the Docker image
