@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+numpy
+aiofiles
+opencv-python-headless
+einops
+mediapipe
+onnxruntime
+gdown

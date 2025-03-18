@@ -1,16 +1,13 @@
-FROM python:3.10-slim
+FROM python:3.10-alpine
 
-WORKDIR /app
+WORKDIR /slr-model
 
-COPY ./dictionary.py /app
-COPY ./main.py /app
-COPY ./slr.onnx /app
-COPY ./requirements.txt /app
+COPY ai-model/ /slr-model/
 
-RUN pip install -r requirements.txt --no-cache-dir
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
-RUN apt-get update && apt-get install libgl1
-
+RUN pip install --upgrade pip && \
+ pip install -r requirements.txt --no-cache-dir
+RUN apt-get update && \
+ apt-get install --no-install-recommends ffmpeg libsm6 libxext6 libgl1 -y
 
 EXPOSE 30000
 

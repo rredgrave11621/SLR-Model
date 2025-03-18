@@ -2,22 +2,26 @@ from fastapi import FastAPI, File, UploadFile
 from tempfile import NamedTemporaryFile
 from fastapi.concurrency import run_in_threadpool
 import aiofiles
+import asyncio
 import traceback
 import os
 import cv2
 # import torch
 from einops import rearrange
 import mediapipe as mp
+# from aagcn import Model
 import onnxruntime
 import numpy as np
-from dictionary import label
+import gdown
+import dictionary
 
 mp_holistic = mp.solutions.holistic
 holistic = mp_holistic.Holistic()
 app = FastAPI()
-ort_session = onnxruntime.InferenceSession("slr_aagcn.onnx")
+ort_session = onnxruntime.InferenceSession("slr.onnx")
 input_name = ort_session.get_inputs()[0].name
-output_name = ort_session.get_outputs()[0].name 
+output_name = ort_session.get_outputs()[0].name
+label = dictionary.label
 
 @app.post("/video_async")
 async def video_async(file: UploadFile = File(...)):
@@ -30,7 +34,7 @@ async def video_async(file: UploadFile = File(...)):
                 return {"message": "There was an error uploading the file"}
             finally:
                 await file.close()
-        
+
         # res = await run_in_threadpool(process_video, temp.name)  # Pass temp.name to VideoCapture()
         res = await process_video(temp.name)
     except Exception:
@@ -40,6 +44,19 @@ async def video_async(file: UploadFile = File(...)):
         os.remove(temp.name)
 
     return res
+
+@app.post("/video_url")
+async def video_url(video_url : str):
+    try:
+        output_path = 'test5.mp4'
+        gdown.download(video_url, output_path, quiet=False,fuzzy=True)
+        res = await run_in_threadpool(process_video, output_path)  # Pass temp.name to VideoCapture()
+        return res
+    except Exception:
+        traceback.print_exc()
+        return {"message": "There was an error processing the file"}
+    finally:
+        os.remove(output_path)
 
 async def process_video(path):
     # device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -68,7 +85,7 @@ async def extract_keypoints2(video_path):
     while True:
             # keypoint_dict : Dict[str, List[float]] = {}
             ret, frame = video.read()
-            
+
 
             if not ret:
                 break
@@ -81,13 +98,13 @@ async def extract_keypoints2(video_path):
             if count == 1:
                 results = holistic.process(image)
                 if results.pose_landmarks:
-                    # Crop pose only 
+                    # Crop pose only
                     print("Right shoulder", results.pose_landmarks.landmark[12].x)
                     print("Left shoulder", results.pose_landmarks.landmark[11].x)
                     width_man = abs(results.pose_landmarks.landmark[12].x - results.pose_landmarks.landmark[11].x)
                     scale = 1.5
-                    pose_start = int(width * (results.pose_landmarks.landmark[12].x - scale * width_man)) 
-                    pose_end = int(width * (results.pose_landmarks.landmark[11].x + scale * width_man)) 
+                    pose_start = int(width * (results.pose_landmarks.landmark[12].x - scale * width_man))
+                    pose_end = int(width * (results.pose_landmarks.landmark[11].x + scale * width_man))
                     print(width_man)
                     print(pose_start)
                     print(pose_end)
@@ -125,9 +142,9 @@ async def extract_keypoints2(video_path):
                 for i in range(21):
                     list_keypoints.append(0)
                     list_keypoints.append(0)
-            
+
             if results.pose_landmarks:
-                for idx in [30, 12, 2, 20]: 
+                for idx in [30, 12, 2, 20]:
                     landmark = results.pose_landmarks.landmark[idx]
                     x = landmark.x
                     y = landmark.y
@@ -138,7 +155,7 @@ async def extract_keypoints2(video_path):
                     list_keypoints.append(0)
                     list_keypoints.append(0)
 
-    # Reshape 
+    # Reshape
     print(count)
     # keypoints = torch.tensor(list_keypoints)
     keypoints = np.array(list_keypoints)
