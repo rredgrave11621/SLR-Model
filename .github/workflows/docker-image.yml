@@ -19,14 +19,14 @@ jobs:
       run: docker build . --tag slr-model:0.1 --file Dockerfile --no-cache
 
     - name: Login to the Container Repository
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ secrets.DOCKER_HUB_USER }}
-        password: ${{ secrets.DOCKER_HUB_TOKEN }}
-      #run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
+      run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login ghcr.io -u rredgrave11621 --password-stdin
+      # uses: docker/login-action@v1
+      # with:
+      #   registry: ghcr.io
+      #   username: ${{ secrets.DOCKER_HUB_USER }}
+      #   password: ${{ secrets.DOCKER_HUB_TOKEN }}
     
     - name: Tag and push to the repository
       run: |
-        docker tag slr-model:0.1 '${{ secrets.DOCKER_HUB_USER }}'/slr-model:0.1
-        docker push '${{ secrets.DOCKER_HUB_USER }}'/slr-model:0.1
+        docker tag slr-model:0.1 rredgrave11621/slr-model:0.1
+        docker push rredgrave11621/slr-model:0.1
