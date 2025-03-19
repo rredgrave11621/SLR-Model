@@ -19,7 +19,7 @@ jobs:
       run: docker build . --tag slr-model:0.1 --file Dockerfile --no-cache
 
     - name: Login to the Container Repository
-      run: docker login ghcr.io -u "${{ secrets.DOCKER_HUB_USER }}" -p "${{ secrets.DOCKER_HUB_TOKEN }}"
+      run: docker login ghcr.io -u rredgrave11621 -p "dckr_pat_sQB7-54d8pQ2VZj95t2wzwVQMOs"
       # uses: docker/login-action@v1
       # with:
       #   registry: ghcr.io
