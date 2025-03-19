@@ -17,7 +17,7 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        docker build . --tag slr-model:0.1 --file Dockerfile --no-cache
+        docker build . --tag slr-model:1.${{ github.run_number }} --file Dockerfile --no-cache
 
     - name: Login to the Container Repository
       # run: docker login -u rredgrave11621 -p ${{ secrets.DOCKER_HUB_TOKEN }}
@@ -28,5 +28,5 @@ jobs:
     
     - name: Tag and push to the repository
       run: |
-        docker tag slr-model:0.1 rredgrave11621/slr-model:0.1
-        docker push rredgrave11621/slr-model:0.1
+        docker tag slr-model:1.${{ github.run_number }} rredgrave11621/slr-model:1.${{ github.run_number }}
+        docker push rredgrave11621/slr-model:1.${{ github.run_number }}
